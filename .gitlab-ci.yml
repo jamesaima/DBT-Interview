@@ -1,0 +1,26 @@
+variables:
+  AWS_DEFAULT_REGION: us-east-1
+  APP_NAME: dbt
+
+stages:
+  - build
+
+build-dbt-image:
+  stage: build
+  when: on_success
+  image:
+    name: public.ecr.aws/account/docker_builder_gitlab:latest
+    entrypoint: [""]
+  services:
+    - docker:dind
+  before_script:
+    - unset DOCKER_HOST
+    - dockerd &
+    - sleep 10
+    - python3 -m pip install awscli
+    - AWS_ACCESS_KEY_ID=$DBT_AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$DBT_AWS_SECRET_ACCESS_KEY aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $DBT_DOCKER_REGISTRY
+  script:
+    - docker build --platform linux/amd64 -t $DBT_DOCKER_REGISTRY/$APP_NAME:latest dbt/
+    - docker push $DBT_DOCKER_REGISTRY/$APP_NAME:latest
+  only:
+    - main
