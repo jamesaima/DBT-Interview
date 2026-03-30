@@ -1,0 +1,34 @@
+name: 'aima_data_warehouse'
+version: '1.0.0'
+config-version: 2
+
+profile: 'aima_data_warehouse'
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  tenants:
+    - "tenant1"
+    - "tenant2"
+    - "tenant3"
+
+
+  # Junction tables have no modified_on; map them to parent table for deduplication
+  # Key: table suffix (without "all_" prefix), Value: parent table column to join for modified_on
+  junction_tables:
+    claim_claimstatushistory:
+      parent_table: "claim_claim"
+      parent_fk: "claim_id"
+
+models:
+  aima_data_warehouse:
+    consolidation:
+      +materialized: table
+      +schema: public

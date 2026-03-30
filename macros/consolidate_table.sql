@@ -84,6 +84,9 @@
 {%- set junction_tables = var('junction_tables') -%}
 {%- set is_junction = table_name in junction_tables -%}
 
+
+
+
 {# -- Run pre-flight validation (fails fast if any tenant table is missing/mismatched) -- #}
 {{ validate_tenant_tables(table_name) }}
 
